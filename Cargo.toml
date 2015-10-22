@@ -1,0 +1,11 @@
+[package]
+
+name = "rustroids"
+version = "0.0.1"
+authors = [ "Kyle Watson <kw@headwire.com>" ]
+
+[dependencies]
+sdl2 = "0.9"
+
+#[dependencies.sdl2]
+#git = "https://github.com/AngryLawyer/rust-sdl2"
