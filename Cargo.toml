@@ -4,8 +4,12 @@ name = "rustroids"
 version = "0.0.1"
 authors = [ "Kyle Watson <kw@headwire.com>" ]
 
-[dependencies]
-sdl2 = "0.9"
+[[bin]]
+name = "spinning-square"
 
-#[dependencies.sdl2]
-#git = "https://github.com/AngryLawyer/rust-sdl2"
+[dependencies]
+piston = "0.13.0"
+piston2d-graphics = "0.10.0"
+pistoncore-glutin_window = "0.16.0"
+piston2d-opengl_graphics = "0.14.0"
+
