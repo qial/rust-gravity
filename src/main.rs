@@ -2,25 +2,39 @@ extern crate piston;
 extern crate graphics;
 extern crate glutin_window;
 extern crate opengl_graphics;
+extern crate rand;
 
 use piston::window::WindowSettings;
 use piston::event_loop::*;
 use piston::input::*;
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{ GlGraphics, OpenGL };
+use rand::thread_rng;
+use rand::Rng;
+
 
 // Create our model structs
+struct Vec2D {
+    x: f64,
+    y: f64
+}
+
 struct Object {
-    x: f64, // meters, I guess?
-    y: f64, // meters
-    m: f64, // kilograms
-    v: f64  // meters/second
+    p: Vec2D, // meters, I guess?
+    v: Vec2D, // meters/second
+    m: f64,   // kilograms
 }
 
 impl Object {
+    fn new(x: f64, y: f64, dx: f64, dy: f64, m: f64) -> Object {
+        let p = Vec2D{ x: x,  y: y  };
+        let v = Vec2D{ x: dx, y: dy };
+        Object{ p: p, v: v, m: m }
+    }
+
     fn update_pos(&mut self, dt: f64) {
-        self.x += self.v * dt;
-        self.y += self.v * dt;
+        self.p.x += self.v.x * dt;
+        self.p.y += self.v.y * dt;
     }
 }
 
@@ -49,8 +63,8 @@ impl App {
 
             // draw objects
             for obj in objs {
-                let transform = c.transform.trans(x, y) // move origin to center
-                                           .trans(obj.x, obj.y);
+                let transform = c.transform//.trans(x, y) // move origin to center
+                                           .trans(obj.p.x, obj.p.y);
 
                 ellipse(BLUE, circle, transform, gl);
             }
@@ -64,11 +78,12 @@ impl App {
 
     fn update(&mut self, args: &UpdateArgs) {
         // Move object by velocity
-        for ref obj in &self.objs {
-            //obj.update_pos(args.dt);
-            //obj.x += obj.v * args.dt;
-            //obj.y += obj.v * args.dt;
+        let mut i = 0;
+        while i < self.objs.len() {
+            self.objs[i].update_pos(args.dt);
+            i+=1;
         }
+        
         // Rotate 2 radians per second.
         //self.rotation += 2.0 * args.dt;
     }
@@ -81,8 +96,8 @@ fn main() {
     // Create an Glutin window.
     let window: Window = WindowSettings::new(
             "rustroids",
-            //[800, 600]
-            [200,200]
+            [800, 600]
+            //[200,200]
         )
         .opengl(opengl)
         .exit_on_esc(true)
@@ -90,17 +105,26 @@ fn main() {
         .unwrap();
 
     // Create first object
-    let obj1 = Object{ 
-        x: 0.0,
-        y: 0.0,
-        m: 10.0,
-        v: 1.0 
-    };
+    let maxv = 10.0f64;
+    let maxx = 800.0f64;
+    let maxy = 600.0f64;
+    let mut objs = Vec::new();
+    let mut rng = rand::thread_rng();
+
+    for _ in 0..10 {
+        objs.push(Object::new(
+            rng.next_f64() * maxx, 
+            rng.next_f64() * maxy,
+            rng.next_f64() * maxv,
+            rng.next_f64() * maxv,
+            10.0
+        ));
+    }
 
     // Create a new game and run it.
     let mut app = App {
         gl: GlGraphics::new(opengl),
-        objs: vec![ obj1 ]
+        objs: objs
     };
 
     for e in window.events() {
