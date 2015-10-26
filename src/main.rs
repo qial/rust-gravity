@@ -11,6 +11,7 @@ use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{ GlGraphics, OpenGL };
 use rand::thread_rng;
 use rand::Rng;
+use rand::distributions::{IndependentSample, Range};
 
 
 // Create our model structs
@@ -35,6 +36,11 @@ impl Object {
     fn update_pos(&mut self, dt: f64) {
         self.p.x += self.v.x * dt;
         self.p.y += self.v.y * dt;
+    }
+
+    // a{x,y} is acceleration force direction (and magnitude)
+    fn update_v(&mut self, dt: f64, ax: f64, ay: f64) {
+
     }
 }
 
@@ -84,9 +90,40 @@ impl App {
             i+=1;
         }
         
-        // Rotate 2 radians per second.
-        //self.rotation += 2.0 * args.dt;
+        i = 0;
+        while i < self.objs.len() {
+
+        }
     }
+
+    fn update_v(&mut objs, i: i32) {
+        // find acceleration force for objs[i]
+        let mass = objs[i].m;
+        // TODO gravity equations
+    }
+}
+
+
+
+fn make_random_objects() -> Vec<Object> {
+    // Create first object
+    let maxv = 10.0f64;
+    let maxx = 800.0f64;
+    let maxy = 600.0f64;
+    let mut objs = Vec::new();
+    let mut rng = rand::thread_rng();
+    let range = Range::new(-10.0, 10.0);
+
+    for _ in 0..10 {
+        objs.push(Object::new(
+            rng.next_f64() * maxx, 
+            rng.next_f64() * maxy,
+            range.ind_sample(&mut rng),
+            range.ind_sample(&mut rng),
+            10.0
+        ));
+    }
+    objs
 }
 
 fn main() {
@@ -104,22 +141,7 @@ fn main() {
         .build()
         .unwrap();
 
-    // Create first object
-    let maxv = 10.0f64;
-    let maxx = 800.0f64;
-    let maxy = 600.0f64;
-    let mut objs = Vec::new();
-    let mut rng = rand::thread_rng();
-
-    for _ in 0..10 {
-        objs.push(Object::new(
-            rng.next_f64() * maxx, 
-            rng.next_f64() * maxy,
-            rng.next_f64() * maxv,
-            rng.next_f64() * maxv,
-            10.0
-        ));
-    }
+    let objs = make_random_objects();
 
     // Create a new game and run it.
     let mut app = App {
