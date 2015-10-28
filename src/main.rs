@@ -2,47 +2,17 @@ extern crate piston;
 extern crate graphics;
 extern crate glutin_window;
 extern crate opengl_graphics;
-extern crate rand;
 
 use piston::window::WindowSettings;
 use piston::event_loop::*;
 use piston::input::*;
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{ GlGraphics, OpenGL };
-use rand::thread_rng;
-use rand::Rng;
-use rand::distributions::{IndependentSample, Range};
+use std::num;
 
+mod structs;
 
-// Create our model structs
-struct Vec2D {
-    x: f64,
-    y: f64
-}
-
-struct Object {
-    p: Vec2D, // meters, I guess?
-    v: Vec2D, // meters/second
-    m: f64,   // kilograms
-}
-
-impl Object {
-    fn new(x: f64, y: f64, dx: f64, dy: f64, m: f64) -> Object {
-        let p = Vec2D{ x: x,  y: y  };
-        let v = Vec2D{ x: dx, y: dy };
-        Object{ p: p, v: v, m: m }
-    }
-
-    fn update_pos(&mut self, dt: f64) {
-        self.p.x += self.v.x * dt;
-        self.p.y += self.v.y * dt;
-    }
-
-    // a{x,y} is acceleration force direction (and magnitude)
-    fn update_v(&mut self, dt: f64, ax: f64, ay: f64) {
-
-    }
-}
+use structs::{Object, Vec2D};
 
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
@@ -96,35 +66,16 @@ impl App {
         }
     }
 
-    fn update_v(&mut objs, i: i32) {
+    fn update_v( objs: &mut Vec<Object>, i: i32) {
         // find acceleration force for objs[i]
-        let mass = objs[i].m;
+        //let mass = objs[i].m;
         // TODO gravity equations
     }
 }
 
 
 
-fn make_random_objects() -> Vec<Object> {
-    // Create first object
-    let maxv = 10.0f64;
-    let maxx = 800.0f64;
-    let maxy = 600.0f64;
-    let mut objs = Vec::new();
-    let mut rng = rand::thread_rng();
-    let range = Range::new(-10.0, 10.0);
 
-    for _ in 0..10 {
-        objs.push(Object::new(
-            rng.next_f64() * maxx, 
-            rng.next_f64() * maxy,
-            range.ind_sample(&mut rng),
-            range.ind_sample(&mut rng),
-            10.0
-        ));
-    }
-    objs
-}
 
 fn main() {
     // Change this to OpenGL::V2_1 if not working.
@@ -141,7 +92,7 @@ fn main() {
         .build()
         .unwrap();
 
-    let objs = make_random_objects();
+    let objs = structs::make_random_objects();
 
     // Create a new game and run it.
     let mut app = App {
